@@ -1,0 +1,38 @@
+version: "3.6"
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - "./:/code"
+      - "./.docker/nginx:/etc/nginx/conf.d/"
+    links:
+      - phpfpm
+
+  phpfpm:
+    build:
+      context: ./.docker/phpfpm
+    volumes:
+      - "./:/code"
+      - "./.docker/phpfpm/php.ini:/usr/local/etc/php/conf.d/php.ini"
+    links:
+      - db
+    environment:
+      XDEBUG_MODE: debug
+  db:
+    image: library/mysql:5.7.25
+    volumes:
+      - "./.docker/db/data:/var/lib/mysql"
+      - "./.docker/db/conf.d:/etc/mysql/conf.d"
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dev
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+
+
